@@ -1,19 +1,36 @@
 'use strict'
-
+//library imports
 import React, { Component } from 'react';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware, combineReduxers, compose } from 'redux';
-import thunkMiddleware from 'redux-thunk'; 
-import createLogger from 'redux-logger'; 
 import {
   AppRegistry,
   StyleSheet,
   Text,
-  View, 
+  View,
   NavigatorIOS
 } from 'react-native';
-
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
+import thunkMiddleware from 'redux-thunk'; 
+import { createLogger } from 'redux-logger'; 
+import reducer from './app/reducers/'; 
+//file imports
 import QuestionPage from './QuestionPage'; 
+import LoginForm from './app/components/LoginForm'; 
+
+//creates logging in development mode
+const loggerMiddleware = createLogger({predicate: (getState, action) => __DEV__}); 
+
+function configureStore(initialState) {
+  const enhancer = compose(
+    applyMiddleware(
+      thunkMiddleware,
+      loggerMiddleware,
+    ),
+  ); 
+  return createStore(reducer, initialState, enhancer)
+}
+
+const store = configureStore({});
 
 export default class ClarityTutor extends Component { 
   render() {
@@ -29,6 +46,18 @@ export default class ClarityTutor extends Component {
   }
 }
 
+class App extends Component {
+  render() {
+    return(
+      <Provider store={store}>
+        <View>
+          <LoginForm/>
+        </View>
+      </Provider> 
+    ); 
+  }
+}
+
 const styles = StyleSheet.create({
   description: {
     fontSize: 18,
@@ -41,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ClarityTutor', () => ClarityTutor);
+AppRegistry.registerComponent('ClarityTutor', () => App);
