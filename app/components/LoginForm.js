@@ -4,26 +4,79 @@ import {
     StyleSheet,
     Text,
     View,
-    NavigatorIOS
+    NavigatorIOS,
+    ActivityIndicator
 } from 'react-native';
 import { Hoshi } from 'react-native-textinput-effects';
 import Button from 'react-native-button'; 
+import _ from 'lodash';
 import { connect } from 'react-redux';
-// import { emailChanged, passwordChanged } from '../actions'; 
+import { emailChanged, passwordChanged, loginUser } from '../actions'; 
 
 export default class LoginFrom extends Component {
+  onButtonSubmit() {
+    console.log("Submitted: ", `${this.props.email} ${this.props.password}`); 
+    let { email, password } = this.props; 
+    this.props.loginUser({ email, password }); 
+  }
+
   emailChanged(value) {
-    this.props.emailChanged(value); 
+    let email = _.lowerCase(value.trim()); 
+    this.props.emailChanged(email); 
   }
 
   passwordChanged(value) {
     console.log("Value:", value)
-    this.props.passwordChanged(value)
+    this.props.passwordChanged(value.trim()); 
+  }
+
+  renderError() {
+    if (this.props.error) {
+      return (
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 20, 
+            color: '#cc3333'
+          }}
+        >  Authentication failed!
+        </Text>
+      ); 
+    }
+    return null; 
+  }
+
+  renderButton() {
+    if (this.props.spinner) {
+      return (
+        <ActivityIndicator
+          style={{ height: 80 }}
+          size="large"
+        /> 
+      ); 
+    }
+
+    return (
+      <Button 
+        style={{
+          fontSize: 20,
+          color: '#ffffff',
+          backgroundColor: '#000080', 
+          padding: 20,
+          marginTop: 10
+        }}
+        styleDisabled={{ color: 'red' }}
+        onPress={this.onButtonSubmit.bind(this)}
+      > 
+      Login
+      </Button> 
+    ); 
   }
 
   render() {
     return (
       <View style={styles.viewStyle}>
+        {this.renderError()}
         <Hoshi
           label={'Username'}
           borderColor={'#000080'}
@@ -37,22 +90,11 @@ export default class LoginFrom extends Component {
           borderColor={'#000080'}
           backgroundColor={'#FFF'}
           onChangeText={this.passwordChanged.bind(this)}
+          value={this.props.password}
           secureTextEntry
         /> 
 
-        <Button
-          style={{
-            fontSize: 20,
-            color: '#ffffff',
-            backgroundColor: '#000080',
-            padding: 20, 
-            marginTop: 10
-          }}
-          styleDisabled={{ color: 'red'}}
-          onPress={() => console.log('Pressed')}
-        > 
-        Login
-        </Button> 
+        {this.renderButton()}
       </View> 
     ); 
   }
@@ -63,3 +105,14 @@ const styles = {
     marginTop: 50, 
   }
 }
+
+const  mapStateToProps = (state) => {
+  return {
+    email: state.auth.email,
+    password: state.auth.password,
+    error: state.auth.errorFlag,
+    spinner: state.auth.spinner
+  }; 
+}
+
+// export default connect(mapStateToProps, { emailChanged, passwordChanged, loginUser })(LoginForm); 

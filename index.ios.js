@@ -16,6 +16,7 @@ import reducer from './app/reducers/';
 //file imports
 import QuestionPage from './QuestionPage'; 
 import LoginForm from './app/components/LoginForm'; 
+import Register from './app/components/Register';
 
 //creates logging in development mode
 const loggerMiddleware = createLogger({predicate: (getState, action) => __DEV__}); 
@@ -51,7 +52,7 @@ class App extends Component {
     return(
       <Provider store={store}>
         <View>
-          <LoginForm/>
+          <Register/>
         </View>
       </Provider> 
     ); 
